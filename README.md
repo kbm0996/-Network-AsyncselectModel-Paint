@@ -23,27 +23,27 @@
   
   **figure 3. After select()*
 
-  소켓 셋을 세 개 준비하여 select() 함수를 호출하면(그림 9-3). select() 함수는 소켓 셋에 포함된 소켓이 입출력을 위한 준비가 될 떄까지 대기한다. 적어도 한 소켓이 준비되면 select(0 함수는 리턴한다(그림 9-4). 이때 소켓 셋에는 입출력이 가능한 소켓만 남고 나머지는 모두 제거된다. 그림 9-4는 두 소켓에 대해 읽기가 가능하고 한 소켓에 대해 쓰기가 가능함을 나타낸다. 따라서 이 세 소켓에 대해서는 소켓 함수를 호출하여 원하는 작업을 할 수 있다.
-
-  응용 프로그램은 소켓 셋을 통해 소켓 함수를 성공적으로 호출할 수 있는 지점을 알아낼 수 있고, 드물지만 소켓 함수의 호출 결과를 확인할 수도 있다. 다음은 소켓 셋의 역할을 정리한 것이다
+>  소켓 셋을 세 개 준비하여 select() 함수를 호출하면(그림 9-3). select() 함수는 소켓 셋에 포함된 소켓이 입출력을 위한 준비가 될 떄까지 대기한다. 적어도 한 소켓이 준비되면 select(0 함수는 리턴한다(그림 9-4). 이때 소켓 셋에는 입출력이 가능한 소켓만 남고 나머지는 모두 제거된다. 그림 9-4는 두 소켓에 대해 읽기가 가능하고 한 소켓에 대해 쓰기가 가능함을 나타낸다. 따라서 이 세 소켓에 대해서는 소켓 함수를 호출하여 원하는 작업을 할 수 있다.
+>
+>  응용 프로그램은 소켓 셋을 통해 소켓 함수를 성공적으로 호출할 수 있는 지점을 알아낼 수 있고, 드물지만 소켓 함수의 호출 결과를 확인할 수도 있다. 다음은 소켓 셋의 역할을 정리한 것이다
   
->   | 시점 | 읽기 셋(read set) |
->   |:--------|:--------|
->   | 함수 호출 시점	| - 클라이언트 접속 요청이 있으면 FD_ISSET()이 TRUE 리턴 → accept() 호출  <br/> - 소켓 수신 버퍼에 데이터가 있으면 TRUE 리턴 → recv(), recvfrom() 호출하여 데이터 읽기 <br/> - TCP 연결 종료시 TRUE 리턴 → recv(), recvfrom() 호출하여 연결 종료 감지	|
+   | 시점 | 읽기 셋(read set) |
+   |:--------|:--------|
+   | 함수 호출 시점	| - 클라이언트 접속 요청이 있으면 FD_ISSET()이 TRUE 리턴 → accept() 호출  <br/> - 소켓 수신 버퍼에 데이터가 있으면 TRUE 리턴 → recv(), recvfrom() 호출하여 데이터 읽기 <br/> - TCP 연결 종료시 TRUE 리턴 → recv(), recvfrom() 호출하여 연결 종료 감지	|
 
   **table 1. role of read set*
 
->   | 시점 | 읽기 셋(write set) |
->   |:--------|:--------|
->   | 함수 호출 시점	| - 소켓 송신 버퍼의 여유 공간이 충분하면 send(), sendto()로 데이터 전송	| 
->   | 함수 호출 결과 | - 넌블로킹 소켓을 사용한 connect() 함수 호출 성공	|
+   | 시점 | 읽기 셋(write set) |
+   |:--------|:--------|
+   | 함수 호출 시점	| - 소켓 송신 버퍼의 여유 공간이 충분하면 send(), sendto()로 데이터 전송	| 
+   | 함수 호출 결과 | - 넌블로킹 소켓을 사용한 connect() 함수 호출 성공	|
 
   **table 2. role of write set*
   
->   | 시점 | 예외 셋(exception set) |
->   |:--------|:--------|
->   | 함수 호출 시점	| - OOB(Out-Of-Band) 데이터가 도착했으므로 recv(), recvfrom() 등의 함수를 <br/> 호출하여 OOB 데이터 받기 가능	| 
->   | 함수 호출 결과 | - 넌블로킹 소켓을 사용한 connect() 함수 호출 실패	|
+   | 시점 | 예외 셋(exception set) |
+   |:--------|:--------|
+   | 함수 호출 시점	| - OOB(Out-Of-Band) 데이터가 도착했으므로 recv(), recvfrom() 등의 함수를 <br/> 호출하여 OOB 데이터 받기 가능	| 
+   | 함수 호출 결과 | - 넌블로킹 소켓을 사용한 connect() 함수 호출 실패	|
 
   **table 3. role of exception set*
   
@@ -58,20 +58,20 @@
 * timeout : select 함수 최대 대기 시간
 * 리턴값 : 성공 시 준비된 fd 개수, 시간 만료 시 0, 오류 발생 시 -1
 
-동기 I/O를 수행하기 위해 최대 FD_SETSIZE(default 값 64)개의 FD(File Descriptor)를 등록한다. FD_ISSET() 함수로 등록한 FD의 상태 변화를 감지할 수 있다
+>동기 I/O를 수행하기 위해 최대 FD_SETSIZE(default 값 64)개의 FD(File Descriptor)를 등록한다. FD_ISSET() 함수로 등록한 FD의 상태 변화를 감지할 수 있다
 
->      FD_SET ReadSet;	 // FD_SET 구조체 : Select 모델에서 Socket들을 관리하는 구조체
->      FD_ZERO(&ReadSet);	 // FD_ZERO() : FD_SET 구조체 초기화
->      FD_SET(g_ListenSocket, &ReadSet);	// FD_SET() : FD_SET 구조체 내 SOCKET 배열에 g_ListenSocket 삽입
->      for (int iCnt = 0; iCnt < df_USER_MAX; ++iCnt)
->      {
->        if (g_pPlayer[iCnt].iID != -1) // 접속이 된 유저
->          FD_SET(g_pPlayer[iCnt].Socket, &ReadSet);
->      }
->      timeval Time;
->      Time.tv_sec = 0; // 초
->      Time.tv_usec = 0; // 마이크로초
->      select(0, &ReadSet, NULL, NULL, &Time);
+      FD_SET ReadSet;	 // FD_SET 구조체 : Select 모델에서 Socket들을 관리하는 구조체
+      FD_ZERO(&ReadSet);	 // FD_ZERO() : FD_SET 구조체 초기화
+      FD_SET(g_ListenSocket, &ReadSet);	// FD_SET() : FD_SET 구조체 내 SOCKET 배열에 g_ListenSocket 삽입
+      for (int iCnt = 0; iCnt < df_USER_MAX; ++iCnt)
+      {
+        if (g_pPlayer[iCnt].iID != -1) // 접속이 된 유저
+          FD_SET(g_pPlayer[iCnt].Socket, &ReadSet);
+      }
+      timeval Time;
+      Time.tv_sec = 0; // 초
+      Time.tv_usec = 0; // 마이크로초
+      select(0, &ReadSet, NULL, NULL, &Time);
 
 ### 2. FD_ISSET(fd, *fdset);
 * fd : 확인할 소켓
@@ -79,13 +79,13 @@
 * 리턴값 : fd의 비트가 fdset 내에서 세트로 설정되어 있으면 0이 아닌 값, 그렇지 않으면 0
 
 
->      // 서버 Accept 처리
->      if (FD_ISSET(g_ListenSocket, &ReadSet))
->       ProcAccept();
->      // 클라이언트 수신 패킷 처리
->      for (int iCnt = 0; iCnt < df_USER_MAX; ++iCnt)
->      {
->       if (FD_ISSET(g_pPlayer[iCnt].Socket, &ReadSet))
->        ProcRecv(&g_pPlayer[iCnt]);
->      }
+      // 서버 Accept 처리
+      if (FD_ISSET(g_ListenSocket, &ReadSet))
+       ProcAccept();
+      // 클라이언트 수신 패킷 처리
+      for (int iCnt = 0; iCnt < df_USER_MAX; ++iCnt)
+      {
+       if (FD_ISSET(g_pPlayer[iCnt].Socket, &ReadSet))
+        ProcRecv(&g_pPlayer[iCnt]);
+      }
 
