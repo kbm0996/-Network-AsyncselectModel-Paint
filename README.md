@@ -13,13 +13,11 @@
 
  다음 그림은 Select 모델의 동작 원리를 보여준다. Select 모델을 사용하려면 소켓 셋(socket set)을 준비해야 한다. 소켓 셋은 소켓 디스크립터의 집합을 의미하며, 호출할 함수의 종류에 따라 소켓을 적당한 셋에 넣어두어야 한다. 예를 들면, 어떤 소켓에 대해 recv() 함수를 호출하고 싶다면 읽기 셋에 넣고, send() 함수를 호출하고 싶다면 쓰기 셋에 넣으면 된다.
  
- ![capture](https://github.com/kbm0996/Network-Programming-SelectModel/blob/master/before%20calling%20select.JPG)
+ ![capture](https://github.com/kbm0996/Network-Programming-AsyncselectModel/blob/master/figure.png)
   
   **figure 2. Before select()*
   
-  ![capture](https://github.com/kbm0996/Network-Programming-SelectModel/blob/master/after%20calling%20select.JPG)
-  
-  **figure 3. After select()*
+  \
 
 >  소켓 셋을 세 개 준비하여 select() 함수를 호출하면(그림 9-3). select() 함수는 소켓 셋에 포함된 소켓이 입출력을 위한 준비가 될 떄까지 대기한다. 적어도 한 소켓이 준비되면 select(0 함수는 리턴한다(그림 9-4). 이때 소켓 셋에는 입출력이 가능한 소켓만 남고 나머지는 모두 제거된다. 그림 9-4는 두 소켓에 대해 읽기가 가능하고 한 소켓에 대해 쓰기가 가능함을 나타낸다. 따라서 이 세 소켓에 대해서는 소켓 함수를 호출하여 원하는 작업을 할 수 있다.
 >
