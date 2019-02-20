@@ -84,6 +84,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return TRUE;
 	}
 
+	// TODO : 윈도우 메세지 수신 시 주의점
+	// 윈도우 메시지 수신 시 적절한 소켓 함수를 호출하지 않으면, 윈도우 메시지가 다시 발생하지 않음
+	//ex) FD_READ 이벤트에 대응하여 recv()를 호출하지 않으면 동일한 소켓에 대한 FD_READ 이벤트는 다시 발생하지 않음
+
 	case UM_NETWORK:
 		// TODO: WSAAsyncSelect()가 생성하는 메세지의 LPARAM 값
 		//  WSAGETSELECTERROR(LPARAM) : LPARAM의 상위 16비트. 에러 코드 == HIWORD(LPARAM)
@@ -92,15 +96,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case FD_ACCEPT:
 		{
+			int err;
 			SOCKADDR_IN clientAddr;
 			int addrlen = sizeof(clientAddr);
+
+			// accept() 함수가 리턴하는 소켓은 연결 대기 소켓과 동일한 속성을 지님
+			// → 연결 대기 소켓은 직접 데이터 송수신을 하지 않으므로 FD_READ, FD_WRITE 이벤트를 처리하지 않음
 			SOCKET clientSocket = accept(g_ListenSocket, (SOCKADDR*)&clientAddr, &addrlen);
 			if (clientSocket == INVALID_SOCKET)
 			{
-				int err = WSAGetLastError();
+				err = WSAGetLastError();
 				if (err != WSAEWOULDBLOCK)
 				{
-					printf("accept() %d\n", err);
+					closesocket(clientSocket);
+					break;
+				}
+			}
+
+			// accept() 함수가 리턴하는 소켓은 이벤트 처리를 해야하기 때문에 WSAAsyncSelect() 함수를 다시 호출하여 속성 변경이 필요함
+			if (WSAAsyncSelect(clientSocket, hWnd, UM_NETWORK, FD_READ | FD_WRITE | FD_CLOSE) == SOCKET_ERROR)
+			{
+				err = WSAGetLastError();
+				if (err != WSAEWOULDBLOCK)
+				{
+					closesocket(clientSocket);
 					break;
 				}
 			}
@@ -243,6 +262,8 @@ BOOL Start(HWND hWnd)
 	// lEvent - 네트워크 이벤트 (비트 마스크) 
 	//		 FD_READ, FD_WRITE, FD_OOB, FD_ACCEPT, FD_CONNECT, FD_CLOSE, FD_QOS, FD_GROUP_QOS, FD_ROUTING_INTERFACE_CHANGE, FD_ADDRESS_LIST_CHANGE
 	//////////////////////////////////////////////////////////////////////////////////
+	//  해당 함수 호출 시 해당 소켓은 자동으로 Non-blocking 상태로 전환
+	// (blocking 소켓은 윈도우 메시지 루프를 정지시키기 때문)
 	if (WSAAsyncSelect(g_ListenSocket, hWnd, UM_NETWORK, FD_ACCEPT | FD_READ | FD_WRITE | FD_CLOSE) == SOCKET_ERROR)
 	{
 		err = WSAGetLastError();
