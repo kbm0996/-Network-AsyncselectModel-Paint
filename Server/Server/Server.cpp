@@ -138,6 +138,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case FD_READ:
 			// TODO: WSAAsyncSelect()가 생성하는 메세지의 WPARAM 값
 			//  현재 네트워크 이벤트가 발생된 소켓
+
+			// TODO : FD_READ 주의사항
+			// 1. FD_READ 발생시 recv를 send한번에 보낸 만큼만 받게 되는데 이후 아직 수신한 데이터가 있으면 다시 FD_READ는 발생
+			// 2. 모든 recv를 처리하기 전에 상대편이 접속 종료를 하여 FD_CLOSE가 발생했을 경우 수신 버퍼를 확인하여 처리해줘야함
 			ProcRecv(wParam);
 			ProcSend(wParam);
 			break;
